@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confession Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(145deg, #1a1a1a, #2b2b2b);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 0, 102, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            width: 95%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            border: 2px solid rgba(255, 0, 102, 0.5);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #ff0066;
+            font-weight: bold;
+            text-shadow: 0 0 8px #ff0066, 0 0 20px rgba(255, 0, 102, 0.8);
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            margin-top: 15px;
+            border: 2px solid #ff0066;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            resize: none;
+            background: #2b2b2b;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+        }
+
+        button {
+            background: linear-gradient(145deg, #ff0066, #d40056);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 12px rgba(255, 0, 102, 0.8);
+        }
+
+        button:hover {
+            background: #ff1a75;
+            box-shadow: 0 0 20px rgba(255, 0, 102, 1), 0 0 8px #fff;
+        }
+
+        .confirmation {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #00ff99;
+            font-weight: bold;
+        }
+
+        #viewBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(145deg, #ff3300, #d42c00);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 12px rgba(255, 51, 0, 0.8);
+        }
+
+        #viewBtn:hover {
+            background: #ff5733;
+            box-shadow: 0 0 20px rgba(255, 51, 0, 1), 0 0 8px #fff;
+        }
+
+        .journal-list {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .journal-entry {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(255, 0, 102, 0.5);
+            font-family: 'Courier New', Courier, monospace;
+            color: #fff;
+        }
+
+        .journal-entry h3 {
+            color: #ff0066;
+            font-size: 1rem;
+        }
+
+        .journal-entry p {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>CONFESSION 💀</h1>
+        <textarea id="journalEntry" placeholder="Write your guilty secrets here..."></textarea>
+        <br>
+        <button onclick="saveJournalEntry()">Save Entry</button>
+        <div id="confirmationMessage" class="confirmation"></div>
+
+        <div id="journalList" class="journal-list"></div>
+    </div>
+    <button id="viewBtn" onclick="viewJournalEntries()">View Entries</button>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYY2GQqS0tCXb7Oxw8AWXhpexq9e8VRUs",
+            authDomain: "aspirehub-32863.firebaseapp.com",
+            projectId: "aspirehub-32863",
+            storageBucket: "aspirehub-32863.appspot.com",
+            messagingSenderId: "686810111182",
+            appId: "1:686810111182:web:4290b4b1b6e64934ec449f",
+            measurementId: "G-KX41R0SSMY"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Function to save the journal entry
+        function saveJournalEntry() {
+            const journalEntry = document.getElementById('journalEntry').value;
+            const confirmationMessage = document.getElementById('confirmationMessage');
+
+            if (journalEntry.trim() === "") {
+                confirmationMessage.textContent = "Please write something before saving.";
+                confirmationMessage.style.color = 'red';
+                return;
+            }
+
+            // Save the journal entry to Firestore
+            const today = new Date().toLocaleDateString(); // Get today's date
+            db.collection("journalEntries").doc(today).set({
+                date: today,
+                entry: journalEntry,
+            })
+            .then(() => {
+                confirmationMessage.textContent = "Entry saved successfully!";
+                confirmationMessage.style.color = 'green';
+                document.getElementById('journalEntry').value = ''; // Clear the text area
+
+                // Also save to localStorage
+                const entries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+                entries.push({ date: today, entry: journalEntry });
+                localStorage.setItem('journalEntries', JSON.stringify(entries));
+            })
+            .catch((error) => {
+                confirmationMessage.textContent = "Error saving entry. Please try again.";
+                confirmationMessage.style.color = 'red';
+            });
+        }
+
+        // Function to view journal entries from localStorage and Firebase
+        function viewJournalEntries() {
+            const journalListDiv = document.getElementById('journalList');
+            journalListDiv.innerHTML = ''; // Clear any previous content
+
+            // Load journal entries from localStorage
+            const localEntries = JSON.parse(localStorage.getItem('journalEntries')) || [];
+
+            if (localEntries.length === 0) {
+                journalListDiv.innerHTML = '<p>No journal entries found.</p>';
+                return;
+            }
+
+            localEntries.forEach(entry => {
+                const entryElement = document.createElement('div');
+                entryElement.classList.add('journal-entry');
+                entryElement.innerHTML = `
+                    <h3>${entry.date}</h3>
+                    <p>${entry.entry}</p>
+                `;
+                journalListDiv.appendChild(entryElement);
+            });
+        }
+    </script>
+
+</body>
+</html>
