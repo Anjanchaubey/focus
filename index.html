@@ -6,8 +6,11 @@
   <title>Focus Workspace</title>
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="style.css">
+  <!-- Added inline CSS for mobile modal behavior -->
   <style>
-    /* Root variables for a modern, vibrant vibe */
+    
+    
     /* Root variables for a modern, vibrant vibe */
 :root {
   --primary-color: #4a90e2;
@@ -551,6 +554,46 @@ a {
       justify-content: center;
       align-items: center;
     }
+  
+    /* Mobile-specific styling: when the screen is less than 768px, style the sidebar as a modal popup */
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        background: #fff;
+        z-index: 1000;
+        display: none; /* start hidden */
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        overflow-y: auto;
+      }
+      /* When active, show the sidebar as a modal */
+      #sidebar.show-modal {
+        display: block;
+      }
+      /* Hide the desktop slide animation on mobile */
+      #sidebar.slide {
+        transition: none;
+      }
+      /* Close button visible on mobile */
+      #close-sidebar {
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+      }
+    }
+    /* On desktop the close button remains hidden */
+    #close-sidebar {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -576,12 +619,14 @@ a {
   <div id="main-content" style="display: none;">
     <!-- Sidebar Section -->
     <div id="sidebar">
+      <!-- Added close button for mobile -->
+      <button id="close-sidebar">&times;</button>
       <h3>
         To-Do List 
         <i class="fa-solid fa-plus" id="add-task-icon"></i>
       </h3>
       <ul id="todo-list"></ul>
-      <!-- Resizer element -->
+      <!-- Resizer element (desktop only) -->
       <div id="resizer"></div>
       <!-- Total Focus Time -->
       <div id="total-focus-time">
@@ -606,6 +651,8 @@ a {
           <img id="modal-profile-img" src="" alt="Profile Photo">
           <h3 id="modal-profile-email"></h3>
           <button id="change-profile-pic-btn">Change Profile Picture</button>
+          <!-- Added Logout Button -->
+          <button id="logout-btn">Logout</button>
           <div id="about">
             <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
           </div>
@@ -688,8 +735,6 @@ a {
     firebase.auth().onAuthStateChanged(user => {
       // Hide loading screen when auth state is confirmed
       document.getElementById('loading-screen').style.display = 'none';
-
-
 
       if (user) {
         // Hide auth section and display main content
@@ -778,36 +823,43 @@ a {
       });
     });
 
- // Sidebar toggle with animation
-const toggleBtn = document.getElementById('toggle-sidebar-btn');
-const sidebar = document.getElementById('sidebar');
-let sidebarVisible = true;
+    // Sidebar toggle with different behavior for mobile and desktop
+    const toggleBtn = document.getElementById('toggle-sidebar-btn');
+    const sidebar = document.getElementById('sidebar');
+    let sidebarVisible = true;
 
-toggleBtn.addEventListener('click', () => {
-  if (sidebarVisible) {
-    // Add class to hide the sidebar with animation
-    sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease'; // Smooth animation
-    sidebar.style.transform = 'translateX(-100%)'; // Slide it out of view
-    sidebar.style.opacity = '0'; // Fade out
+    toggleBtn.addEventListener('click', () => {
+      if (window.innerWidth < 768) {
+        // Mobile: toggle modal-style sidebar
+        sidebar.classList.toggle('show-modal');
+      } else {
+        // Desktop: slide sidebar in/out as before
+        if (sidebarVisible) {
+          sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+          sidebar.style.transform = 'translateX(-100%)';
+          sidebar.style.opacity = '0';
+          setTimeout(() => {
+            sidebar.style.display = 'none';
+          }, 500);
+          sidebarVisible = false;
+        } else {
+          sidebar.style.display = 'block';
+          setTimeout(() => {
+            sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+            sidebar.style.transform = 'translateX(0)';
+            sidebar.style.opacity = '1';
+          }, 10);
+          sidebarVisible = true;
+        }
+      }
+    });
 
-    setTimeout(() => {
-      sidebar.style.display = 'none'; // Completely hide it after animation
-    }, 500); // Set delay matching the animation time
-    sidebarVisible = false;
-  } else {
-    // Show the sidebar with animation
-    sidebar.style.display = 'block'; // Show it instantly
-    setTimeout(() => {
-      sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease'; // Smooth animation
-      sidebar.style.transform = 'translateX(0)'; // Slide it back into view
-      sidebar.style.opacity = '1'; // Fade in
-    }, 10); // Add a slight delay to trigger the transition
-    sidebarVisible = true;
-  }
-});
+    // Mobile: Close button functionality for the modal sidebar
+    document.getElementById('close-sidebar').addEventListener('click', () => {
+      sidebar.classList.remove('show-modal');
+    });
 
-
-    // Resizer for sidebar
+    // Resizer for sidebar (desktop only)
     const resizer = document.getElementById('resizer');
     let startX, startWidth;
     resizer.addEventListener('mousedown', initResize, false);
@@ -830,6 +882,14 @@ toggleBtn.addEventListener('click', () => {
       const savedWidth = localStorage.getItem('sidebarWidth');
       if (savedWidth) {
         sidebar.style.width = savedWidth;
+      }
+      if (window.innerWidth < 768) {
+        // For mobile, ensure the sidebar starts hidden (modal style)
+        sidebar.classList.remove('show-modal');
+        sidebarVisible = false;
+      } else {
+        sidebar.style.display = 'block';
+        sidebarVisible = true;
       }
     });
 
@@ -983,16 +1043,12 @@ toggleBtn.addEventListener('click', () => {
     }
 
     // Update Progress Ring
-   // In the updateProgress function, adjust the strokeDashoffset
-function updateProgress() {
-  const progress = (timerDuration * 60 - remainingTime) / (timerDuration * 60);
-  const offset = circumference - progress * circumference;
-  
-  // Smooth transition for the progress circle
-  progressCircle.style.transition = 'stroke-dashoffset 0.5s ease';
-  progressCircle.style.strokeDashoffset = offset;
-}
-
+    function updateProgress() {
+      const progress = (timerDuration * 60 - remainingTime) / (timerDuration * 60);
+      const offset = circumference - progress * circumference;
+      progressCircle.style.transition = 'stroke-dashoffset 0.5s ease';
+      progressCircle.style.strokeDashoffset = offset;
+    }
 
     // Pause / Resume Timer (also via space bar)
     document.getElementById('pause-timer-btn').addEventListener('click', togglePause);
@@ -1070,22 +1126,16 @@ function updateProgress() {
       }
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-  // Load saved width from localStorage (if any)
-  const savedWidth = localStorage.getItem('sidebarWidth');
-  if (savedWidth) {
-    sidebar.style.width = savedWidth;
-  }
-
-  // Set initial sidebar visibility based on screen width
-  if (window.innerWidth < 768) { // mobile threshold; adjust as needed
-    sidebar.style.display = 'none';
-    sidebarVisible = false;
-  } else {
-    sidebar.style.display = 'block';
-    sidebarVisible = true;
-  }
-});
+    // Logout button functionality
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      firebase.auth().signOut()
+        .then(() => {
+          console.log('User signed out.');
+        })
+        .catch(error => {
+          alert('Error signing out: ' + error.message);
+        });
+    });
 
   </script>
 </body>
