@@ -240,11 +240,10 @@ body {
 }
 /* Focus Button */
 #focus-btn {
-  --b: 3px;           /* border thickness */
-  --s: 0.6em;         /* increased size of the corner */
-  --color: #4169E1;    /* classic royal blue */
+  --b: 3px;
+  --s: 0.6em;
+  --color: #4169E1;
   
-  /* Increased padding for a bigger look */
   padding: calc(0.7em + var(--s)) calc(1.1em + var(--s));
   color: var(--color);
   --_p: var(--s);
@@ -255,14 +254,12 @@ body {
     )
     var(--_p) var(--_p) / calc(100% - var(--b) - 2*var(--_p))
     calc(100% - var(--b) - 2*var(--_p));
-  transition: 0.3s linear, color 0s, background-color 0s;
+  transition: transform 0.2s ease-in-out, background 0.3s linear;
   outline: var(--b) solid #0000;
   outline-offset: 0.6em;
-  font-size: 20px;  /* increased font size */
-  
+  font-size: 20px;
   border: 0;
   user-select: none;
-  -webkit-user-select: none;
   touch-action: manipulation;
 }
 
@@ -271,17 +268,21 @@ body {
   --_p: 0px;
   outline-color: var(--color);
   outline-offset: 0.05em;
+  transform: scale(1.05); /* Slight pop on hover */
 }
-
 #focus-btn:active {
   background: var(--color);
   color: #fff;
+  transform: scale(0.95); /* Pop-in on click */
 }
 
 /* Progress Container */
 #progress-container {
   display: none;
   text-align: center;
+  position: relative;
+  width: 350px; /* Increased size */
+  height: 350px; /* Increased size */
 }
 #progress-wrapper {
   position: relative;
@@ -290,6 +291,7 @@ body {
 /* Big SVG Progress Ring */
 #progress-ring {
   transform: rotate(-90deg);
+  transition: stroke-dashoffset 1s linear; /* Smooth animation */
 }
 /* Timer Display centered inside progress ring */
 #timer-display {
@@ -786,19 +788,34 @@ const now = new Date();
       });
     });
 
-    // Sidebar toggle
-    const toggleBtn = document.getElementById('toggle-sidebar-btn');
-    const sidebar = document.getElementById('sidebar');
-    let sidebarVisible = true;
-    toggleBtn.addEventListener('click', () => {
-      if (sidebarVisible) {
-        sidebar.style.display = 'none';
-        sidebarVisible = false;
-      } else {
-        sidebar.style.display = 'block';
-        sidebarVisible = true;
-      }
-    });
+ // Sidebar toggle with animation
+const toggleBtn = document.getElementById('toggle-sidebar-btn');
+const sidebar = document.getElementById('sidebar');
+let sidebarVisible = true;
+
+toggleBtn.addEventListener('click', () => {
+  if (sidebarVisible) {
+    // Add class to hide the sidebar with animation
+    sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease'; // Smooth animation
+    sidebar.style.transform = 'translateX(-100%)'; // Slide it out of view
+    sidebar.style.opacity = '0'; // Fade out
+
+    setTimeout(() => {
+      sidebar.style.display = 'none'; // Completely hide it after animation
+    }, 500); // Set delay matching the animation time
+    sidebarVisible = false;
+  } else {
+    // Show the sidebar with animation
+    sidebar.style.display = 'block'; // Show it instantly
+    setTimeout(() => {
+      sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease'; // Smooth animation
+      sidebar.style.transform = 'translateX(0)'; // Slide it back into view
+      sidebar.style.opacity = '1'; // Fade in
+    }, 10); // Add a slight delay to trigger the transition
+    sidebarVisible = true;
+  }
+});
+
 
     // Resizer for sidebar
     const resizer = document.getElementById('resizer');
@@ -976,11 +993,16 @@ const now = new Date();
     }
 
     // Update Progress Ring
-    function updateProgress() {
-      const progress = (timerDuration * 60 - remainingTime) / (timerDuration * 60);
-      const offset = circumference - progress * circumference;
-      progressCircle.style.strokeDashoffset = offset;
-    }
+   // In the updateProgress function, adjust the strokeDashoffset
+function updateProgress() {
+  const progress = (timerDuration * 60 - remainingTime) / (timerDuration * 60);
+  const offset = circumference - progress * circumference;
+  
+  // Smooth transition for the progress circle
+  progressCircle.style.transition = 'stroke-dashoffset 0.5s ease';
+  progressCircle.style.strokeDashoffset = offset;
+}
+
 
     // Pause / Resume Timer (also via space bar)
     document.getElementById('pause-timer-btn').addEventListener('click', togglePause);
