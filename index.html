@@ -1069,6 +1069,24 @@ function updateProgress() {
         togglePause();
       }
     });
+
+    document.addEventListener('DOMContentLoaded', () => {
+  // Load saved width from localStorage (if any)
+  const savedWidth = localStorage.getItem('sidebarWidth');
+  if (savedWidth) {
+    sidebar.style.width = savedWidth;
+  }
+
+  // Set initial sidebar visibility based on screen width
+  if (window.innerWidth < 768) { // mobile threshold; adjust as needed
+    sidebar.style.display = 'none';
+    sidebarVisible = false;
+  } else {
+    sidebar.style.display = 'block';
+    sidebarVisible = true;
+  }
+});
+
   </script>
 </body>
 </html>
