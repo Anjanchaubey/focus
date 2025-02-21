@@ -7,9 +7,8 @@
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
-  <!-- Added inline CSS for mobile modal behavior -->
+  <!-- Inline CSS for mobile modal behavior -->
   <style>
-    
     
     /* Root variables for a modern, vibrant vibe */
 :root {
@@ -554,7 +553,7 @@ a {
       justify-content: center;
       align-items: center;
     }
-  
+   
     /* Mobile-specific styling: when the screen is less than 768px, style the sidebar as a modal popup */
     @media (max-width: 768px) {
       #sidebar {
@@ -619,7 +618,7 @@ a {
   <div id="main-content" style="display: none;">
     <!-- Sidebar Section -->
     <div id="sidebar">
-      <!-- Added close button for mobile -->
+      <!-- Mobile close button -->
       <button id="close-sidebar">&times;</button>
       <h3>
         To-Do List 
@@ -651,7 +650,7 @@ a {
           <img id="modal-profile-img" src="" alt="Profile Photo">
           <h3 id="modal-profile-email"></h3>
           <button id="change-profile-pic-btn">Change Profile Picture</button>
-          <!-- Added Logout Button -->
+          <!-- Logout Button -->
           <button id="logout-btn">Logout</button>
           <div id="about">
             <a href="about.html"><i class="fa-solid fa-circle-info"></i> About</a>
@@ -679,14 +678,11 @@ a {
     </div>
   </div>
 
-  <!-- Modal Popup for Timer Settings -->
+  <!-- Modal Popup for Timer Settings (Task selector removed) -->
   <div id="timer-modal">
     <div class="modal-content">
       <h2>Set Focus Time</h2>
       <input type="number" id="modal-duration" placeholder="Duration (minutes)" /><br />
-      <select id="modal-task-select">
-        <option value="">Select a task</option>
-      </select><br />
       <button id="modal-start-btn">Start</button>
       <button id="modal-close-btn">Cancel</button>
     </div>
@@ -733,46 +729,37 @@ a {
 
     // Listen for auth state changes
     firebase.auth().onAuthStateChanged(user => {
-      // Hide loading screen when auth state is confirmed
       document.getElementById('loading-screen').style.display = 'none';
-
       if (user) {
-        // Hide auth section and display main content
         document.getElementById('auth-section').style.display = 'none';
         document.getElementById('main-content').style.display = 'flex';
         loadTodos(user.uid);
         loadFocusSessions(user.uid);
 
-        // Setup profile icon and modal details
+        // Setup profile details
         const profileIcon = document.getElementById('profile-icon');
         const profileImg = document.getElementById('profile-img');
         const modalProfileImg = document.getElementById('modal-profile-img');
         const modalProfileEmail = document.getElementById('modal-profile-email');
-        
         const photoURL = user.photoURL ? user.photoURL : 'https://via.placeholder.com/40';
         profileImg.src = photoURL;
         modalProfileImg.src = user.photoURL ? user.photoURL : 'https://via.placeholder.com/80';
         modalProfileEmail.textContent = user.email;
         profileIcon.style.display = 'block';
       } else {
-        // If no user, show auth section
         document.getElementById('profile-icon').style.display = 'none';
         document.getElementById('auth-section').style.display = 'block';
         document.getElementById('main-content').style.display = 'none';
       }
     });
 
-    // Open profile modal on profile icon click
+    // Open and close profile modal
     document.getElementById('profile-icon').addEventListener('click', () => {
       document.getElementById('profile-modal').style.display = 'flex';
     });
-
-    // Close profile modal on clicking the close icon
     document.getElementById('modal-close-profile').addEventListener('click', () => {
       document.getElementById('profile-modal').style.display = 'none';
     });
-
-    // Optional: Close modal if clicking outside modal content
     window.addEventListener('click', (e) => {
       const modal = document.getElementById('profile-modal');
       if (e.target === modal) {
@@ -780,14 +767,13 @@ a {
       }
     });
 
-    // Allow changing the profile picture via a prompt for a new image URL
+    // Change profile picture
     document.getElementById('change-profile-pic-btn').addEventListener('click', () => {
       const newPhotoURL = prompt('Enter new profile picture URL:');
       if (newPhotoURL) {
         firebase.auth().currentUser.updateProfile({
           photoURL: newPhotoURL
         }).then(() => {
-          // Update the profile icon and modal with the new photo
           document.getElementById('profile-img').src = newPhotoURL;
           document.getElementById('modal-profile-img').src = newPhotoURL;
           alert('Profile picture updated!');
@@ -797,7 +783,7 @@ a {
       }
     });
 
-    // Sign In
+    // Sign In / Sign Up / Google Sign-In
     document.getElementById('sign-in-btn').addEventListener('click', () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
@@ -805,8 +791,6 @@ a {
         alert(error.message);
       });
     });
-
-    // Sign Up
     document.getElementById('sign-up-btn').addEventListener('click', () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
@@ -814,8 +798,6 @@ a {
         alert(error.message);
       });
     });
-
-    // Google Sign-In
     document.getElementById('google-sign-in-btn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithPopup(provider).catch(error => {
@@ -823,17 +805,14 @@ a {
       });
     });
 
-    // Sidebar toggle with different behavior for mobile and desktop
+    // Sidebar toggle: mobile vs. desktop behavior
     const toggleBtn = document.getElementById('toggle-sidebar-btn');
     const sidebar = document.getElementById('sidebar');
     let sidebarVisible = true;
-
     toggleBtn.addEventListener('click', () => {
       if (window.innerWidth < 768) {
-        // Mobile: toggle modal-style sidebar
         sidebar.classList.toggle('show-modal');
       } else {
-        // Desktop: slide sidebar in/out as before
         if (sidebarVisible) {
           sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
           sidebar.style.transform = 'translateX(-100%)';
@@ -853,8 +832,6 @@ a {
         }
       }
     });
-
-    // Mobile: Close button functionality for the modal sidebar
     document.getElementById('close-sidebar').addEventListener('click', () => {
       sidebar.classList.remove('show-modal');
     });
@@ -884,7 +861,6 @@ a {
         sidebar.style.width = savedWidth;
       }
       if (window.innerWidth < 768) {
-        // For mobile, ensure the sidebar starts hidden (modal style)
         sidebar.classList.remove('show-modal');
         sidebarVisible = false;
       } else {
@@ -893,20 +869,18 @@ a {
       }
     });
 
-    // To-Do List: Load tasks
+    // To-Do List: Load tasks (only populating the sidebar list)
     function loadTodos(uid) {
       const todosRef = db.ref(`users/${uid}/todos`);
       todosRef.on('value', snapshot => {
         const todos = snapshot.val() || {};
         const todoList = document.getElementById('todo-list');
         todoList.innerHTML = '';
-        const modalTaskSelect = document.getElementById('modal-task-select');
-        modalTaskSelect.innerHTML = '<option value="">Select a task</option>';
         for (let id in todos) {
           const todo = todos[id];
           const li = document.createElement('li');
-
-          // Delete icon inserted at the very left
+          
+          // Delete icon
           const deleteBtn = document.createElement('button');
           deleteBtn.classList.add('delete-task');
           deleteBtn.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
@@ -916,7 +890,7 @@ a {
             }
           });
           li.appendChild(deleteBtn);
-
+          
           // Checkbox
           const checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
@@ -925,7 +899,7 @@ a {
             todosRef.child(id).update({ completed: checkbox.checked });
           });
           li.appendChild(checkbox);
-
+          
           // Task text
           const textSpan = document.createElement('span');
           textSpan.classList.add('task-text');
@@ -934,23 +908,15 @@ a {
             textSpan.style.textDecoration = 'line-through';
           }
           li.appendChild(textSpan);
-
           todoList.appendChild(li);
-
-          // Populate modal task select dropdown
-          const option = document.createElement('option');
-          option.value = id;
-          option.textContent = todo.text;
-          modalTaskSelect.appendChild(option);
         }
       });
     }
 
-    // Sidebar: Open Task Adding Modal when plus icon is clicked
+    // Open Task Adding Modal when plus icon is clicked
     document.getElementById('add-task-icon').addEventListener('click', () => {
       document.getElementById('task-modal').style.display = 'flex';
     });
-
     // Task Modal: Add Task
     document.getElementById('task-add-btn').addEventListener('click', () => {
       const taskName = document.getElementById('task-input').value;
@@ -969,11 +935,10 @@ a {
       document.getElementById('task-modal').style.display = 'none';
     });
 
-    // Timer Variables
+    // Timer Variables (removed selectedTaskId)
     let timerInterval;
     let remainingTime;
     let isRunning = false;
-    let selectedTaskId;
     let startTime;
     let timerDuration; // in minutes
 
@@ -992,7 +957,7 @@ a {
     document.getElementById('modal-close-btn').addEventListener('click', () => {
       document.getElementById('timer-modal').style.display = 'none';
     });
-    // Start Timer from Modal
+    // Start Timer from Modal (task selector removed)
     document.getElementById('modal-start-btn').addEventListener('click', () => {
       const inputDuration = parseInt(document.getElementById('modal-duration').value);
       if (!inputDuration || inputDuration <= 0) {
@@ -1000,11 +965,6 @@ a {
         return;
       }
       timerDuration = inputDuration;
-      selectedTaskId = document.getElementById('modal-task-select').value;
-      if (!selectedTaskId) {
-        alert('Please select a task');
-        return;
-      }
       remainingTime = timerDuration * 60;
       startTime = Date.now();
       updateTimerDisplay();
@@ -1016,7 +976,7 @@ a {
       document.getElementById('stop-timer-btn').style.display = 'inline';
     });
 
-    // Start Timer Function
+    // Timer functions
     function startTimer() {
       isRunning = true;
       timerInterval = setInterval(() => {
@@ -1025,7 +985,8 @@ a {
         if (remainingTime <= 0) {
           clearInterval(timerInterval);
           isRunning = false;
-          saveFocusSession(startTime, Date.now(), timerDuration * 60, selectedTaskId);
+          // Save focus session without task info
+          saveFocusSession(startTime, Date.now(), timerDuration * 60);
           alert('Timer finished!');
           resetTimer();
         }
@@ -1033,24 +994,18 @@ a {
         updateProgress();
       }, 1000);
     }
-
-    // Update Timer Display (mm:ss)
     function updateTimerDisplay() {
       const minutes = Math.floor(remainingTime / 60);
       const seconds = remainingTime % 60;
       document.getElementById('timer-display').textContent =
         `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
     }
-
-    // Update Progress Ring
     function updateProgress() {
       const progress = (timerDuration * 60 - remainingTime) / (timerDuration * 60);
       const offset = circumference - progress * circumference;
       progressCircle.style.transition = 'stroke-dashoffset 0.5s ease';
       progressCircle.style.strokeDashoffset = offset;
     }
-
-    // Pause / Resume Timer (also via space bar)
     document.getElementById('pause-timer-btn').addEventListener('click', togglePause);
     function togglePause() {
       if (isRunning) {
@@ -1063,39 +1018,30 @@ a {
         document.getElementById('pause-timer-btn').textContent = 'Pause';
       }
     }
-    // Stop Timer
     document.getElementById('stop-timer-btn').addEventListener('click', () => {
       clearInterval(timerInterval);
       isRunning = false;
       resetTimer();
     });
-
-    // Reset Timer UI
     function resetTimer() {
       document.getElementById('pause-timer-btn').style.display = 'none';
       document.getElementById('stop-timer-btn').style.display = 'none';
       document.getElementById('timer-display').textContent = '00:00';
       document.getElementById('modal-duration').value = '';
-      document.getElementById('modal-task-select').value = '';
       document.getElementById('pause-timer-btn').textContent = 'Pause';
       progressCircle.style.strokeDashoffset = circumference;
       document.getElementById('focus-btn').style.display = 'inline';
       document.getElementById('progress-container').style.display = 'none';
     }
-
-    // Save Focus Session in DB
-    function saveFocusSession(startTime, endTime, duration, taskId) {
+    function saveFocusSession(startTime, endTime, duration) {
       const uid = firebase.auth().currentUser.uid;
       const focusSessionsRef = db.ref(`users/${uid}/focusSessions`);
       focusSessionsRef.push({
         startTime: startTime,
         endTime: endTime,
-        duration: duration,
-        taskId: taskId
+        duration: duration
       });
     }
-
-    // Load Focus Sessions to calculate total focus time
     function loadFocusSessions(uid) {
       const focusSessionsRef = db.ref(`users/${uid}/focusSessions`);
       focusSessionsRef.on('value', snapshot => {
@@ -1117,16 +1063,12 @@ a {
       }
       return total;
     }
-
-    // Space bar to toggle pause/resume
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && document.getElementById('pause-timer-btn').style.display !== 'none') {
         e.preventDefault();
         togglePause();
       }
     });
-
-    // Logout button functionality
     document.getElementById('logout-btn').addEventListener('click', () => {
       firebase.auth().signOut()
         .then(() => {
@@ -1136,7 +1078,6 @@ a {
           alert('Error signing out: ' + error.message);
         });
     });
-
   </script>
 </body>
 </html>
