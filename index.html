@@ -687,6 +687,18 @@ a {
       // Hide loading screen when auth state is confirmed
       document.getElementById('loading-screen').style.display = 'none';
 
+// Auto-delete tasks after 3am, once per day
+const now = new Date();
+    if (now.getHours() >= 3) {
+      const today = now.toDateString();
+      const lastClearDate = localStorage.getItem('lastClearDate');
+      if (lastClearDate !== today) {
+        // Delete all tasks for the user
+        db.ref(`users/${user.uid}/todos`).remove();
+        localStorage.setItem('lastClearDate', today);
+      }
+    }
+
       if (user) {
         // Hide auth section and display main content
         document.getElementById('auth-section').style.display = 'none';
