@@ -1,0 +1,584 @@
+  
+    /* Root variables for a modern, vibrant vibe */
+    :root {
+        --primary-color: #4a90e2;
+        --primary-color-dark: #3a78c2;
+        --secondary-color: #50e3c2;
+        --secondary-color-dark: #3ec3a2;
+        --background-color: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-color: #333333;
+        --accent-color: #f5a623;
+        --accent-color-dark: #e4961d;
+      }
+      
+      /* Global reset and body styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: 'Poppins', sans-serif;
+        background: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      /* Authentication Section */
+      #auth-section {
+        max-width: 400px;
+        margin: 5vh auto;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s ease-in-out;
+      }
+      #auth-section:hover {
+        transform: scale(1.02);
+      }
+      #auth-section h2 {
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        color: var(--primary-color);
+      }
+      #auth-section input,
+      #auth-section button {
+        width: 100%;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+      }
+      #auth-section button {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      #auth-section button:hover {
+        background: var(--primary-color-dark);
+      }
+      
+      /* Toggle Sidebar Button */
+      #toggle-sidebar-btn {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 1100;
+        color: var(--primary-color);
+      }
+      
+      /* Main Content Layout */
+      #main-content {
+        display: flex;
+        flex-wrap: nowrap;
+        min-height: 100vh;
+      }
+      
+      /* Sidebar Section */
+      #sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        background: var(--card-bg);
+        padding: 2rem 1rem;
+        box-shadow: 2px 0 15px rgba(0,0,0,0.1);
+        overflow-y: auto;
+        position: relative;
+        transition: transform 0.3s ease-in-out;
+      }
+      #sidebar.closed {
+        transform: translateX(-100%);
+      }
+      /* Header with plus icon for task adding */
+      #sidebar h3 {
+        position: relative;
+        margin: 25px 0 1rem;
+        font-size: 1.4rem;
+        color: var(--primary-color);
+      }
+      #add-task-icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+      }
+      /* Remove inline task input/button; now tasks are added via popup */
+      
+      /* Sidebar common elements */
+      #sidebar input,
+      #sidebar button {
+        width: 100%;
+        padding: 0.6rem;
+        margin: 0.5rem 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 0.9rem;
+      }
+      #sidebar button {
+        background: var(--secondary-color);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      #sidebar button:hover {
+        background: var(--secondary-color-dark);
+      }
+      
+      /* Task List Styling */
+      #todo-list {
+        list-style: none;
+        margin-top: 1rem;
+      }
+      #todo-list li {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #eee;
+      }
+      /* Delete icon aligned to far left with no margins */
+      #todo-list li .delete-task {
+        order: 2;
+        text-align: right;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        color: #999;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      /* Custom Checkbox Styling */
+      #todo-list li input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        margin: 0 10px;
+        position: relative;
+        cursor: pointer;
+        order: 1;
+        border: 1px solid black;
+      }
+      #todo-list li input[type="checkbox"]:checked {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+      }
+      #todo-list li input[type="checkbox"]:checked::after {
+        content: '✓';
+        color: #fff;
+        position: absolute;
+        top: -2px;
+        left: 3px;
+        font-size: 14px;
+      }
+      /* Task text styling */
+      #todo-list li .task-text {
+        flex-grow: 1;
+        order: 1;
+        width: 800%;
+        font-size: 15px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+      }
+      
+      /* Resizer for sidebar */
+      #resizer {
+        width: 5px;
+        cursor: ew-resize;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: transparent;
+      }
+      
+      /* Total Focus Time */
+      #total-focus-time {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem;
+        border-top: 1px solid #eee;
+        font-size: 1rem;
+        color: var(--text-color);
+      }
+      
+      /* Timer Section */
+      #timer-section {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      /* Focus Button */
+      #focus-btn {
+        --b: 3px;
+        --s: 0.6em;
+        --color: #4169E1;
+        
+        padding: calc(0.7em + var(--s)) calc(1.1em + var(--s));
+        color: var(--color);
+        --_p: var(--s);
+        background: conic-gradient(
+            from 90deg at var(--b) var(--b),
+            #0000 90deg,
+            var(--color) 0
+          )
+          var(--_p) var(--_p) / calc(100% - var(--b) - 2*var(--_p))
+          calc(100% - var(--b) - 2*var(--_p));
+        transition: transform 0.2s ease-in-out, background 0.3s linear;
+        outline: var(--b) solid #0000;
+        outline-offset: 0.6em;
+        font-size: 20px;
+        border: 0;
+        user-select: none;
+        touch-action: manipulation;
+      }
+      
+      #focus-btn:hover,
+      #focus-btn:focus-visible {
+        --_p: 0px;
+        outline-color: var(--color);
+        outline-offset: 0.05em;
+        transform: scale(1.05); /* Slight pop on hover */
+      }
+      #focus-btn:active {
+        background: var(--color);
+        color: #fff;
+        transform: scale(0.95); /* Pop-in on click */
+      }
+      
+      /* Progress Container */
+      #progress-container {
+        display: none;
+        text-align: center;
+        position: relative;
+        width: 350px; /* Increased size */
+        height: 350px; /* Increased size */
+      }
+      #progress-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+      /* Big SVG Progress Ring */
+      #progress-ring {
+        transform: rotate(-90deg);
+        transition: stroke-dashoffset 1s linear; /* Smooth animation */
+      }
+      /* Timer Display centered inside progress ring */
+      #timer-display {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--primary-color);
+      }
+      /* Timer Controls (Pause & Stop) at bottom */
+      #timer-controls {
+        margin-top: 2rem;
+      }
+      #pause-timer-btn,
+      #stop-timer-btn {
+        padding: 0.8rem 1.2rem;
+        margin: 0 0.5rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        background: var(--primary-color);
+        color: #fff;
+        transition: background 0.3s;
+      }
+      #pause-timer-btn:hover,
+      #stop-timer-btn:hover {
+        background: var(--primary-color-dark);
+      }
+      
+      /* Modal Popup for Timer Settings and Task Adding */
+      #timer-modal,
+      #task-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        align-items: center;
+        justify-content: center;
+        z-index: 1200;
+        animation: fadeIn 0.3s ease-in-out;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      
+      /* Modal Content Styling */
+      .modal-content {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        animation: slideIn 0.4s ease-in-out;
+        border: 2px solid var(--primary-color);
+      }
+      
+      @keyframes slideIn {
+        from { transform: translateY(-30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      
+      .modal-content input,
+      .modal-content select,
+      .modal-content button {
+        width: 100%;
+        padding: 0.8rem;
+        margin: 0.5rem 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      .modal-content input:focus,
+      .modal-content select:focus,
+      .modal-content button:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(74,144,226,0.5);
+      }
+      .modal-content button {
+        background: var(--primary-color);
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+      }
+      .modal-content button:hover {
+        background: var(--primary-color-dark);
+        transform: scale(1.03);
+      }
+      .modal-content button:active {
+        transform: scale(0.98);
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        #main-content {
+          flex-direction: column;
+        }
+        #sidebar {
+          width: 100%;
+          box-shadow: none;
+        }
+        #timer-section {
+          padding: 1rem;
+        }
+      }
+      
+      /* Profile Icon Styling */
+      #profile-icon {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        z-index: 1100;
+      }
+      #profile-icon img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      
+      /* Modal for Profile Details */
+      #profile-modal {
+        display: none;
+        position: fixed;
+        z-index: 1200;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        align-items: center;
+        justify-content: center;
+      }
+      #profile-modal .modal-content {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        position: relative;
+      }
+      #modal-close-profile {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+      #modal-profile-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 1rem;
+      }
+      #modal-profile-email {
+        font-size: 1.2rem;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+      }
+      /* Change Profile Picture Button */
+      #change-profile-pic-btn {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: var(--primary-color);
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+      #change-profile-pic-btn:hover {
+        background: var(--primary-color-dark);
+      }
+      
+      #about {
+          margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: var(--primary-color);
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+          }
+      
+          #about:hover {
+        background: var(--primary-color-dark);
+      }
+      
+      a {
+       text-decoration: none;
+       color: black;
+      }
+      
+        
+          body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+          }
+          /* Loading Screen Styles */
+          #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 1.5rem;
+            color: #4a90e2;
+          }
+          /* Sidebar Resizer */
+          #resizer {
+            width: 5px;
+            cursor: ew-resize;
+            background-color: #ddd;
+          }
+          /* Modal Styles */
+          .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 400px;
+            position: relative;
+          }
+          #profile-modal, #timer-modal, #task-modal {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+          }
+         
+          /* Mobile-specific styling: when the screen is less than 768px, style the sidebar as a modal popup */
+          @media (max-width: 768px) {
+            #sidebar {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 80%;
+              max-width: 300px;
+              height: 100%;
+              background: #fff;
+              z-index: 1000;
+              display: none; /* start hidden */
+              box-shadow: 0 0 10px rgba(0,0,0,0.5);
+              overflow-y: auto;
+            }
+            /* When active, show the sidebar as a modal */
+            #sidebar.show-modal {
+              display: block;
+            }
+            /* Hide the desktop slide animation on mobile */
+            #sidebar.slide {
+              transition: none;
+            }
+            /* Close button visible on mobile */
+            #close-sidebar {
+              display: block;
+              position: absolute;
+              top: 10px;
+              right: 15px;
+              background: none;
+              border: none;
+              font-size: 24px;
+              cursor: pointer;
+            }
+          }
+          /* On desktop the close button remains hidden */
+          #close-sidebar {
+            display: none;
+          }
