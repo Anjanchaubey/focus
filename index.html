@@ -16,6 +16,9 @@
   <link rel="icon" href="icon.ico" type="image/x-icon" />
 </head>
 <body>
+  <button id="fullscreen-btn">
+    <i class="fa-solid fa-expand"></i>
+  </button>
   <!-- Profile Picture (clickable, redirects to profile.html) -->
   <img id="profile-pic" src="https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg" alt="Profile Picture" onclick="window.location.href='profile.html'" />
 
@@ -38,6 +41,13 @@
         <i class="fa-solid fa-plus" id="add-task-icon"></i>
       </h3>
       <ul id="todo-list"></ul>
+      
+      <!-- Inline Task Input Container placed at the bottom -->
+      <div id="inline-task-input-container" style="display: none; margin-top: 10px;">
+        <input type="text" id="inline-task-input" placeholder="Enter new task" />
+        <button id="inline-task-add-btn">Add</button>
+      </div>
+      
       <!-- Resizer element (desktop only) -->
       <div id="resizer"></div>
       <!-- Total Focus Time -->
@@ -45,6 +55,8 @@
         Total focus time today: <span id="total-time">0</span> minutes
       </div>
     </div>
+    
+    
 
     <!-- Focus Timer Section -->
     <div id="timer-section">
@@ -70,12 +82,13 @@
       </div>
     </div>
   </div>
-
   <!-- Dark Mode Toggle Slider -->
   <label class="switch">
     <input type="checkbox">
     <span class="slider"></span>
   </label>
+
+  
 
   <!-- Modal Popup for Timer Settings -->
   <div id="timer-modal">
@@ -574,8 +587,68 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Show task modal when the add task icon is clicked
   document.getElementById('add-task-icon').addEventListener('click', () => {
-    document.getElementById('task-modal').style.display = 'flex';
-  });
+  const inputContainer = document.getElementById('inline-task-input-container');
+  if (inputContainer.style.display === 'none' || inputContainer.style.display === '') {
+    inputContainer.style.display = 'block';
+    const taskInput = document.getElementById('inline-task-input');
+    taskInput.focus();
+    // For mobile: scroll the input into view above the keyboard
+    if (window.innerWidth < 768) {
+      taskInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  } else {
+    inputContainer.style.display = 'none';
+  }
+});
+// Function to add the new task
+function addInlineTask() {
+  const taskInput = document.getElementById('inline-task-input');
+  const taskName = taskInput.value.trim();
+  
+  if (!taskName) {
+    alert('Please enter a task name.');
+    return;
+  }
+  
+  // Create a unique id for the task (using timestamp)
+  const id = 'task-' + Date.now();
+  todos[id] = { text: taskName, completed: false };
+  
+  saveTodos();
+  renderTodos();
+  
+  // Clear the input and hide the inline container
+  taskInput.value = '';
+  document.getElementById('inline-task-input-container').style.display = 'none';
+}
+
+// Add task on button click or when pressing Enter
+document.getElementById('inline-task-add-btn').addEventListener('click', addInlineTask);
+document.getElementById('inline-task-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    addInlineTask();
+  }
+});
+
+document.addEventListener('keydown', function(e) {
+  // Avoid triggering if typing in an input or textarea
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  
+  // Check if the key pressed is '+' (main keyboard) or NumpadAdd (numpad)
+  if (e.key === '+' || e.code === 'NumpadAdd') {
+    e.preventDefault();
+    const inputContainer = document.getElementById('inline-task-input-container');
+    if (inputContainer.style.display === 'none' || inputContainer.style.display === '') {
+      inputContainer.style.display = 'block';
+      const taskInput = document.getElementById('inline-task-input');
+      taskInput.focus();
+      if (window.innerWidth < 768) {
+        taskInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }
+});
+
 
   // Hide task modal when the cancel button is clicked
   document.getElementById('task-cancel-btn').addEventListener('click', () => {
@@ -676,7 +749,94 @@ document.addEventListener('keydown', (e) => {
     startPresetTimer(60);
   }
 });
-    
+document.addEventListener('keydown', (e) => {
+  // Avoid triggering when typing in an input or textarea
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  
+  if (e.key.toLowerCase() === 'f') {
+    document.getElementById('fullscreen-btn').click();
+  }
+});
+// maut ka khel
+
+// maut ka khel
+document.addEventListener('keydown', (e) => {
+  // Avoid triggering when typing in input or textarea elements
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+  // Get the pressed key in lowercase for shortcuts
+  const key = e.key.toLowerCase();
+
+  // Toggle fullscreen with "f" key (simulate clicking the fullscreen button)
+  if (key === 'f') {
+    document.getElementById('fullscreen-btn').click();
+  }
+
+  // Check for left arrow key to open the sidebar
+  if (e.key === "ArrowRight") {
+    if (!sidebarVisible) {
+      if (window.innerWidth < 768) {
+        // For mobile view, add the modal class to show the sidebar
+        sidebar.classList.add('show-modal');
+      } else {
+        // For desktop view, display and animate the sidebar opening
+        sidebar.style.display = 'block';
+        setTimeout(() => {
+          sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+          sidebar.style.transform = 'translateX(0)';
+          sidebar.style.opacity = '1';
+        }, 10);
+      }
+      sidebarVisible = true;
+    }
+  }
+  
+  // Check for right arrow key to close the sidebar
+  if (e.key === "ArrowLeft") {
+    if (sidebarVisible) {
+      if (window.innerWidth < 768) {
+        // For mobile view, remove the modal class to hide the sidebar
+        sidebar.classList.remove('show-modal');
+      } else {
+        // For desktop view, animate the sidebar closing
+        sidebar.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+        sidebar.style.transform = 'translateX(-100%)';
+        sidebar.style.opacity = '0';
+        setTimeout(() => {
+          sidebar.style.display = 'none';
+        }, 500);
+      }
+      sidebarVisible = false;
+    }
+  }
+
+  // If Backspace or Delete is pressed and the timer is running or paused, stop the timer.
+  if (e.key === "Backspace" || e.key === "Delete") {
+    if (isRunning || timerPaused) {
+      e.preventDefault(); // Prevent default behavior (like navigating back)
+      resetTimer();
+    }
+  }
+
+  // New timer shortcuts:
+  // Press "v" for 90 minutes, "c" for 120 minutes, "x" for 150 minutes, "z" for 180 minutes.
+  if (key === 'v') {
+    startPresetTimer(90);
+  }
+  if (key === 'c') {
+    startPresetTimer(120);
+  }
+  if (key === 'x') {
+    startPresetTimer(150);
+  }
+  if (key === 'z') {
+    startPresetTimer(180);
+  }
+});
+
+
+
+
 // Request Notification permission on page load if not already granted.
 document.addEventListener('DOMContentLoaded', () => {
   if ("Notification" in window && Notification.permission !== "granted") {
@@ -741,6 +901,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// full screen
+document.getElementById('fullscreen-btn').addEventListener('click', () => {
+  // If the sidebar is open, hide it.
+  if (sidebarVisible) {
+    sidebar.style.display = 'none';
+    document.getElementById('timer-controls').style.display = 'none';
+    sidebarVisible = false;
+  }
+  
+  // Toggle fullscreen mode using the Fullscreen API.
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+  
+  // Toggle the 'fullscreen' class on the body for styling purposes
+  document.body.classList.toggle('fullscreen');
+});
+
   </script>
 </body>
 </html>
+
