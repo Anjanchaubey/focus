@@ -323,6 +323,8 @@
         const todo = todos[id];
         const li = document.createElement('li');
         
+        
+        
         // Delete Icon
         const deleteBtn = document.createElement('button');
         deleteBtn.classList.add('delete-task');
@@ -341,6 +343,10 @@
         checkbox.type = 'checkbox';
         checkbox.checked = todo.completed;
         checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+    const audio = new Audio('complete.mp3');
+    audio.play();
+  }
           todos[id].completed = checkbox.checked;
           saveTodos();
           renderTodos();
@@ -660,6 +666,45 @@ document.addEventListener('keydown', (e) => {
   }
 });
     
+// Request Notification permission on page load if not already granted.
+document.addEventListener('DOMContentLoaded', () => {
+  if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
+  // ... (your other DOMContentLoaded code)
+});
+
+// Helper function to send a notification.
+function sendNotification(title, body) {
+  if ("Notification" in window) {
+    if (Notification.permission === "granted") {
+      new Notification(title, { body: body });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification(title, { body: body });
+        }
+      });
+    }
+  }
+}
+
+// Modify your showEndPopup function to send a notification.
+function showEndPopup() {
+  // Send a notification when the timer is completed.
+  sendNotification("Focus Timer Completed", "Your focus session has ended!");
+
+  const endPopup = document.getElementById('end-popup');
+  endPopup.style.display = 'flex';
+  setTimeout(function() {
+    endPopup.style.display = 'none';
+    resetTimer();
+    loadFocusSessions();
+    clearTimerState();
+  }, 5000);
+}
+
+
   </script>
 </body>
 </html>
