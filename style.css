@@ -23,7 +23,13 @@
       --accent-color: #ff8c00;
       --accent-color-dark: #e67e00;
     }
-/* From Uiverse.io by gharsh11032000 */ 
+/* From Uiverse.io by gharsh11032000 */
+/* General dark mode styles for the sidebar */
+body.dark-mode #sidebar {
+  background-color: #333;
+  color: #fff;
+}
+
 /* The switch - slightly bigger */
 .switch {
   font-size: 12px; /* Slightly larger */
