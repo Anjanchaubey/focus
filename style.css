@@ -1,16 +1,84 @@
   
-    /* Root variables for a modern, vibrant vibe */
     :root {
-        --primary-color: #4a90e2;
-        --primary-color-dark: #3a78c2;
-        --secondary-color: #50e3c2;
-        --secondary-color-dark: #3ec3a2;
-        --background-color: #f0f4f8;
-        --card-bg: #ffffff;
-        --text-color: #333333;
-        --accent-color: #f5a623;
-        --accent-color-dark: #e4961d;
-      }
+      --primary-color: #4a90e2;
+      --primary-color-dark: #3a78c2;
+      --secondary-color: #50e3c2;
+      --secondary-color-dark: #3ec3a2;
+      --background-color: #f0f4f8;
+      --card-bg: #ffffff;
+      --text-color: #333333;
+      --accent-color: #f5a623;
+      --accent-color-dark: #e4961d;
+    }
+    
+    /* Dark mode overrides */
+    .dark-mode {
+      --primary-color: #1e90ff;
+      --primary-color-dark: #187bcd;
+      --secondary-color: #00fa9a;
+      --secondary-color-dark: #00e68a;
+      --background-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #f0f0f0;
+      --accent-color: #ff8c00;
+      --accent-color-dark: #e67e00;
+    }
+/* From Uiverse.io by gharsh11032000 */ 
+/* The switch - slightly bigger */
+.switch {
+  font-size: 12px; /* Slightly larger */
+  position: fixed;
+  bottom: 15px; /* Bottom alignment */
+  right: 15px; /* Right alignment */
+  display: inline-block;
+  width: 2.5em; /* Increased width */
+  height: 1.5em; /* Increased height */
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #e1dee4;
+  border-radius: 50px;
+  transition: all 0.3s ease-in-out;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 1.1em; /* Slightly larger */
+  width: 1.1em; /* Slightly larger */
+  left: 0.2em; /* Adjust positioning */
+  bottom: 0.2em;
+  background-color: white;
+  border-radius: 50px;
+  box-shadow: 0 0px 10px rgba(0,0,0,0.3);
+  transition: all 0.3s ease-in-out;
+}
+
+.switch input:checked + .slider {
+  background: #4a90e2;
+}
+
+.switch input:focus + .slider {
+  box-shadow: 0 0 1px #4a90e2;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(1em); /* Adjust movement */
+  width: 1.4em; /* Adjust size */
+  height: 1.4em;
+  bottom: 0;
+}  
       
       /* Global reset and body styles */
       * {
@@ -160,32 +228,68 @@
         cursor: pointer;
         font-size: 1rem;
       }
-      /* Custom Checkbox Styling */
-      #todo-list li input[type="checkbox"] {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border: 2px solid #ccc;
-        border-radius: 4px;
-        margin: 0 10px;
-        position: relative;
-        cursor: pointer;
-        order: 1;
-        border: 1px solid black;
-      }
-      #todo-list li input[type="checkbox"]:checked {
-        background-color: var(--secondary-color);
-        border-color: var(--secondary-color);
-      }
-      #todo-list li input[type="checkbox"]:checked::after {
-        content: '✓';
-        color: #fff;
-        position: absolute;
-        top: -2px;
-        left: 3px;
-        font-size: 14px;
-      }
+     /* Custom Checkbox Styling */
+#todo-list li input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin: 0 10px;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid rgb(127, 125, 125);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Checked state */
+#todo-list li input[type="checkbox"]:checked {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  position: relative;
+}
+
+/* Checkmark */
+#todo-list li input[type="checkbox"]:checked::after {
+  content: '✓';
+  color: #fff;
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Emoji Confetti Effect */
+#todo-list li input[type="checkbox"]:checked::before {
+  content: "🎉🎊✨💥";
+  position: absolute;
+  font-size: 18px;
+  display: block;
+  width: 100px;
+  height: 100px;
+  top: -40px;
+  left: -40px;
+  animation: explode 0.8s ease-out forwards;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Animation */
+@keyframes explode {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
       /* Task text styling */
       #todo-list li .task-text {
         flex-grow: 1;
