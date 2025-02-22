@@ -7,47 +7,6 @@
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Basic styles for the preset buttons */
-    .preset-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    .preset-btn {
-      padding: 8px 12px;
-      border: none;
-      background-color: #eee;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    .preset-btn:hover,
-    .preset-btn.active {
-      background-color: #ccc;
-    }
-    #custom-input-container input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    /* Profile Pic Styling */
-    #profile-pic {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      object-fit: cover;
-      border: 2px solid #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
-    }
-  </style>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
@@ -55,7 +14,7 @@
 </head>
 <body>
   <!-- Profile Picture (clickable, redirects to profile.html) -->
-  <img id="profile-pic" src="default-profile.png" alt="Profile Picture" onclick="window.location.href='profile.html'" />
+  <img id="profile-pic" src="https://img.freepik.com/free-vector/illustration-businessman_53876-5856.jpg" alt="Profile Picture" onclick="window.location.href='profile.html'" />
 
   <!-- Loading Screen -->
   <div id="loading-screen">
@@ -434,16 +393,22 @@
     }
 
     function getTotalFocusTimeToday(focusSessions) {
-      const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-      let total = 0;
-      focusSessions.forEach(session => {
-        if (session.startTime >= startOfDay) {
-          total += session.duration;
-        }
-      });
-      return total;
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  let total = 0;
+  
+  // Convert to an array if focusSessions is not already one
+  const sessionsArray = Array.isArray(focusSessions) ? focusSessions : Object.values(focusSessions);
+  
+  sessionsArray.forEach(session => {
+    if (session.startTime >= startOfDay) {
+      total += session.duration;
     }
+  });
+  
+  return total;
+}
+
 
     // Sidebar Toggle: Mobile vs. Desktop Behavior
     const toggleBtn = document.getElementById('toggle-sidebar-btn');
@@ -572,6 +537,9 @@
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('main-content').style.display = 'flex';
+      document.getElementById('add-task-icon').addEventListener('click', () => {
+  document.getElementById('task-modal').style.display = 'flex';
+});
       loadTodos();
       loadFocusSessions();
       initProgressRing();
@@ -586,6 +554,29 @@
       }
       loadTimerState();
     });
+
+    document.getElementById('task-add-btn').addEventListener('click', () => {
+  const taskInput = document.getElementById('task-input');
+  const taskName = taskInput.value.trim();
+  
+  if (!taskName) {
+    alert('Please enter a task name.');
+    return;
+  }
+  
+  // Create a unique id for the task. Here we use the current timestamp.
+  const id = 'task-' + Date.now();
+  todos[id] = { text: taskName, completed: false };
+  
+  saveTodos();
+  renderTodos();
+  
+  // Clear the input and hide the modal after adding the task
+  taskInput.value = '';
+  document.getElementById('task-modal').style.display = 'none';
+});
+
+
   </script>
 </body>
 </html>
