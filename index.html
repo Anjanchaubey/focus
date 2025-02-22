@@ -73,11 +73,15 @@
             <circle id="progress-ring-circle" cx="150" cy="150" r="140" stroke="royalblue" stroke-width="15" fill="none" stroke-linecap="round" />
           </svg>
           <div id="timer-display">00:00</div>
+          <!-- Add this new element for the completion time -->
+  <div id="completion-time" style="font-size: 0.8rem; display: none;"></div>
+          
         </div>
         <!-- Timer Controls at Bottom -->
         <div id="timer-controls">
           <button id="pause-timer-btn" style="display: none;">Pause</button>
           <button id="stop-timer-btn" style="display: none;">Stop</button>
+          
         </div>
       </div>
     </div>
@@ -266,57 +270,64 @@
 
     // Timer Functions
     function startTimer() {
-      isRunning = true;
-      timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        remainingTime = timerDuration * 60 - elapsed;
-        if (remainingTime <= 0) {
-          clearInterval(timerInterval);
-          isRunning = false;
-          saveFocusSession(startTime, Date.now(), timerDuration * 60);
-          showEndPopup();  // Show the gif popup instead of an alert
-          return;
-        }
-        updateTimerDisplay();
-        updateProgress();
-        saveTimerState();
-      }, 1000);
-    }
-
-    function togglePause() {
-      if (isRunning) {
-        clearInterval(timerInterval);
-        timerPaused = true;
-        isRunning = false;
-        document.getElementById('pause-timer-btn').textContent = 'Resume';
-        saveTimerState();
-      } else if (timerPaused) {
-        startTime = Date.now() - (timerDuration * 60 - remainingTime) * 1000;
-        timerPaused = false;
-        isRunning = true;
-        document.getElementById('pause-timer-btn').textContent = 'Pause';
-        startTimer();
-        saveTimerState();
-      }
-    }
-
-    function resetTimer() {
+  isRunning = true;
+  timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    remainingTime = timerDuration * 60 - elapsed;
+    if (remainingTime <= 0) {
       clearInterval(timerInterval);
       isRunning = false;
-      timerPaused = false;
-      document.getElementById('pause-timer-btn').style.display = 'none';
-      document.getElementById('stop-timer-btn').style.display = 'none';
-      document.getElementById('timer-display').textContent = '00:00';
-      document.getElementById('modal-duration').value = '';
-      document.getElementById('pause-timer-btn').textContent = 'Pause';
-      const progressCircle = document.getElementById('progress-ring-circle');
-      const radius = progressCircle.r.baseVal.value;
-      const circumference = 2 * Math.PI * radius;
-      progressCircle.style.strokeDashoffset = circumference;
-      document.getElementById('focus-btn').style.display = 'inline';
-      document.getElementById('progress-container').style.display = 'none';
-      clearTimerState();
+      saveFocusSession(startTime, Date.now(), timerDuration * 60);
+      showEndPopup();
+      return;
     }
+    updateTimerDisplay();
+    updateProgress();
+    updateCompletionTime(); // <-- NEW: update finish time display
+    saveTimerState();
+  }, 1000);
+}
+
+
+function togglePause() {
+  if (isRunning) {
+    clearInterval(timerInterval);
+    timerPaused = true;
+    isRunning = false;
+    document.getElementById('pause-timer-btn').textContent = 'Resume';
+    updateCompletionTime(); // hide the finish time when paused
+    saveTimerState();
+  } else if (timerPaused) {
+    startTime = Date.now() - (timerDuration * 60 - remainingTime) * 1000;
+    timerPaused = false;
+    isRunning = true;
+    document.getElementById('pause-timer-btn').textContent = 'Pause';
+    startTimer();
+    updateCompletionTime(); // show the finish time when resumed
+    saveTimerState();
+  }
+}
+
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  timerPaused = false;
+  document.getElementById('pause-timer-btn').style.display = 'none';
+  document.getElementById('stop-timer-btn').style.display = 'none';
+  document.getElementById('timer-display').textContent = '00:00';
+  document.getElementById('modal-duration').value = '';
+  document.getElementById('pause-timer-btn').textContent = 'Pause';
+  const progressCircle = document.getElementById('progress-ring-circle');
+  const radius = progressCircle.r.baseVal.value;
+  const circumference = 2 * Math.PI * radius;
+  progressCircle.style.strokeDashoffset = circumference;
+  document.getElementById('focus-btn').style.display = 'inline';
+  document.getElementById('progress-container').style.display = 'none';
+  updateCompletionTime(); // ensure the finish time is hidden
+  clearTimerState();
+}
+
 
     // Function to show the end popup with con.gif for 5 seconds
     function showEndPopup() {
@@ -921,7 +932,28 @@ document.getElementById('fullscreen-btn').addEventListener('click', () => {
   document.body.classList.toggle('fullscreen');
 });
 
+function updateCompletionTime() {
+  const completionTimeEl = document.getElementById('completion-time');
+  // Only show when the timer is running and not paused
+  if (isRunning && !timerPaused) {
+    // Calculate finish time: startTime + (timerDuration in ms)
+    const finishTime = new Date(startTime + timerDuration * 60 * 1000);
+    let hours = finishTime.getHours();
+    let minutes = finishTime.getMinutes();
+    // Format to 12-hour time with am/pm
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // convert '0' hour to '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    const formattedTime = `${hours}:${minutes}${ampm}`;
+    completionTimeEl.textContent = formattedTime;
+    completionTimeEl.style.display = 'block';
+  } else {
+    // Hide the element if the timer is paused or not running
+    completionTimeEl.style.display = 'none';
+  }
+}
+
   </script>
 </body>
 </html>
-
