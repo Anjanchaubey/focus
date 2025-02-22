@@ -789,3 +789,8 @@ body.dark-mode #fullscreen-btn {
   color: #d3d3d3;
 }
 
+#completion-time{
+  background-color: transparent;
+  color: #8c8f8e;
+  padding: 2px;
+}
