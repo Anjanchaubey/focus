@@ -6,13 +6,12 @@
   <title>Focus Workspace</title>
   <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./style.css">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
   <link rel="icon" href="icon.ico" type="image/x-icon" />
-
 </head>
 <body>
   <!-- Profile Picture (clickable, redirects to profile.html) -->
@@ -70,6 +69,12 @@
     </div>
   </div>
 
+  <!-- Dark Mode Toggle Slider -->
+  <label class="switch">
+    <input type="checkbox">
+    <span class="slider"></span>
+  </label>
+
   <!-- Modal Popup for Timer Settings -->
   <div id="timer-modal">
     <div class="modal-content">
@@ -97,6 +102,11 @@
       <button id="task-add-btn">Add Task</button>
       <button id="task-cancel-btn">Cancel</button>
     </div>
+  </div>
+
+  <!-- End Popup: Shows con.gif when timer ends -->
+  <div id="end-popup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1300;">
+    <img src="con.gif" alt="Timer Ended" style="max-width: 90%; max-height: 90%;" />
   </div>
 
   <!-- Firebase Configuration & Initialization -->
@@ -249,10 +259,7 @@
           clearInterval(timerInterval);
           isRunning = false;
           saveFocusSession(startTime, Date.now(), timerDuration * 60);
-          alert('Timer finished!');
-          resetTimer();
-          loadFocusSessions();
-          clearTimerState();
+          showEndPopup();  // Show the gif popup instead of an alert
           return;
         }
         updateTimerDisplay();
@@ -294,6 +301,18 @@
       document.getElementById('focus-btn').style.display = 'inline';
       document.getElementById('progress-container').style.display = 'none';
       clearTimerState();
+    }
+
+    // Function to show the end popup with con.gif for 5 seconds
+    function showEndPopup() {
+      const endPopup = document.getElementById('end-popup');
+      endPopup.style.display = 'flex';
+      setTimeout(function() {
+        endPopup.style.display = 'none';
+        resetTimer();
+        loadFocusSessions();
+        clearTimerState();
+      }, 5000);
     }
 
     // To-Do List Functions with Firebase Sync
@@ -365,16 +384,13 @@
 
     // Focus Sessions Functions with Firebase Sync
     function saveFocusSession(startTime, endTime, duration) {
-      if (firebase.auth().currentUser) {
-        const user = firebase.auth().currentUser;
-        const focusSessionsRef = firebase.database().ref('users/' + user.uid + '/focusSessions');
-        focusSessionsRef.once('value').then((snapshot) => {
-          let sessions = snapshot.val() || [];
-          sessions.push({ startTime, endTime, duration });
-          focusSessionsRef.set(sessions);
-        });
-      }
-    }
+  if (firebase.auth().currentUser) {
+    const user = firebase.auth().currentUser;
+    const focusSessionsRef = firebase.database().ref('users/' + user.uid + '/focusSessions');
+    focusSessionsRef.push({ startTime, endTime, duration });
+  }
+}
+
 
     function loadFocusSessions() {
       if (firebase.auth().currentUser) {
@@ -395,22 +411,21 @@
     }
 
     function getTotalFocusTimeToday(focusSessions) {
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  let total = 0;
-  
-  // Convert to an array if focusSessions is not already one
-  const sessionsArray = Array.isArray(focusSessions) ? focusSessions : Object.values(focusSessions);
-  
-  sessionsArray.forEach(session => {
-    if (session.startTime >= startOfDay) {
-      total += session.duration;
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      let total = 0;
+      
+      // Convert to an array if focusSessions is not already one
+      const sessionsArray = Array.isArray(focusSessions) ? focusSessions : Object.values(focusSessions);
+      
+      sessionsArray.forEach(session => {
+        if (session.startTime >= startOfDay) {
+          total += session.duration;
+        }
+      });
+      
+      return total;
     }
-  });
-  
-  return total;
-}
-
 
     // Sidebar Toggle: Mobile vs. Desktop Behavior
     const toggleBtn = document.getElementById('toggle-sidebar-btn');
@@ -535,13 +550,15 @@
       }
     });
 
-    // On DOMContentLoaded: Load tasks, focus sessions, sidebar width, timer state, and init progress ring
+    // Add Task Modal: Open and Add Task functionality
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('loading-screen').style.display = 'none';
       document.getElementById('main-content').style.display = 'flex';
+      
       document.getElementById('add-task-icon').addEventListener('click', () => {
-  document.getElementById('task-modal').style.display = 'flex';
-});
+        document.getElementById('task-modal').style.display = 'flex';
+      });
+      
       loadTodos();
       loadFocusSessions();
       initProgressRing();
@@ -558,27 +575,83 @@
     });
 
     document.getElementById('task-add-btn').addEventListener('click', () => {
-  const taskInput = document.getElementById('task-input');
-  const taskName = taskInput.value.trim();
-  
-  if (!taskName) {
-    alert('Please enter a task name.');
-    return;
+      const taskInput = document.getElementById('task-input');
+      const taskName = taskInput.value.trim();
+      
+      if (!taskName) {
+        alert('Please enter a task name.');
+        return;
+      }
+      
+      // Create a unique id for the task. Here we use the current timestamp.
+      const id = 'task-' + Date.now();
+      todos[id] = { text: taskName, completed: false };
+      
+      saveTodos();
+      renderTodos();
+      
+      // Clear the input and hide the modal after adding the task
+      taskInput.value = '';
+      document.getElementById('task-modal').style.display = 'none';
+    });
+
+    // Dark Mode Toggler using the slider
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleSwitch = document.querySelector('.switch input');
+
+      // Load saved preference from localStorage, if available
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        toggleSwitch.checked = true;
+      }
+
+      // Listen for changes on the slider
+      toggleSwitch.addEventListener('change', function() {
+        if (this.checked) {
+          document.body.classList.add('dark-mode');
+          localStorage.setItem('darkMode', 'true');
+        } else {
+          document.body.classList.remove('dark-mode');
+          localStorage.setItem('darkMode', 'false');
+        }
+      });
+    });
+
+    // Helper function to start a timer with a given duration (in minutes)
+function startPresetTimer(duration) {
+  // Optional: If a timer is already running or paused, reset it first.
+  if (isRunning || timerPaused) {
+    resetTimer();
   }
-  
-  // Create a unique id for the task. Here we use the current timestamp.
-  const id = 'task-' + Date.now();
-  todos[id] = { text: taskName, completed: false };
-  
-  saveTodos();
-  renderTodos();
-  
-  // Clear the input and hide the modal after adding the task
-  taskInput.value = '';
-  document.getElementById('task-modal').style.display = 'none';
+  timerDuration = duration;
+  remainingTime = timerDuration * 60;
+  startTime = Date.now();
+  updateTimerDisplay();
+  startTimer();
+  // Update UI: Hide the timer modal and focus button; show the progress container and control buttons.
+  document.getElementById('timer-modal').style.display = 'none';
+  document.getElementById('focus-btn').style.display = 'none';
+  document.getElementById('progress-container').style.display = 'block';
+  document.getElementById('pause-timer-btn').style.display = 'inline';
+  document.getElementById('stop-timer-btn').style.display = 'inline';
+  saveTimerState();
+}
+
+// Keyboard shortcuts: Press "M" for 25 min, "N" for 45 min, "B" for 60 min
+document.addEventListener('keydown', (e) => {
+  // Do not trigger shortcuts when typing into inputs or textareas.
+  if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+
+  const key = e.key.toLowerCase();
+  if (key === 'm') {
+    startPresetTimer(25);
+  } else if (key === 'n') {
+    startPresetTimer(45);
+  } else if (key === 'b') {
+    startPresetTimer(60);
+  }
 });
-
-
+    
   </script>
 </body>
 </html>
