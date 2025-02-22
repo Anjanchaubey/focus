@@ -550,50 +550,58 @@
       }
     });
 
-    // Add Task Modal: Open and Add Task functionality
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('loading-screen').style.display = 'none';
-      document.getElementById('main-content').style.display = 'flex';
-      
-      document.getElementById('add-task-icon').addEventListener('click', () => {
-        document.getElementById('task-modal').style.display = 'flex';
-      });
-      
-      loadTodos();
-      loadFocusSessions();
-      initProgressRing();
-      const savedWidth = localStorage.getItem('sidebarWidth');
-      if (savedWidth) {
-        document.getElementById('sidebar').style.width = savedWidth;
-      }
-      if (window.innerWidth < 768) {
-        sidebar.classList.remove('show-modal');
-      } else {
-        sidebar.style.display = 'block';
-      }
-      loadTimerState();
-    });
+ // Add Task Modal: Open and Add Task functionality
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'flex';
+  
+  // Show task modal when the add task icon is clicked
+  document.getElementById('add-task-icon').addEventListener('click', () => {
+    document.getElementById('task-modal').style.display = 'flex';
+  });
 
-    document.getElementById('task-add-btn').addEventListener('click', () => {
-      const taskInput = document.getElementById('task-input');
-      const taskName = taskInput.value.trim();
-      
-      if (!taskName) {
-        alert('Please enter a task name.');
-        return;
-      }
-      
-      // Create a unique id for the task. Here we use the current timestamp.
-      const id = 'task-' + Date.now();
-      todos[id] = { text: taskName, completed: false };
-      
-      saveTodos();
-      renderTodos();
-      
-      // Clear the input and hide the modal after adding the task
-      taskInput.value = '';
-      document.getElementById('task-modal').style.display = 'none';
-    });
+  // Hide task modal when the cancel button is clicked
+  document.getElementById('task-cancel-btn').addEventListener('click', () => {
+    document.getElementById('task-modal').style.display = 'none';
+  });
+  
+  loadTodos();
+  loadFocusSessions();
+  initProgressRing();
+  const savedWidth = localStorage.getItem('sidebarWidth');
+  if (savedWidth) {
+    document.getElementById('sidebar').style.width = savedWidth;
+  }
+  if (window.innerWidth < 768) {
+    sidebar.classList.remove('show-modal');
+  } else {
+    sidebar.style.display = 'block';
+  }
+  loadTimerState();
+});
+
+// Add Task functionality for the add button
+document.getElementById('task-add-btn').addEventListener('click', () => {
+  const taskInput = document.getElementById('task-input');
+  const taskName = taskInput.value.trim();
+  
+  if (!taskName) {
+    alert('Please enter a task name.');
+    return;
+  }
+  
+  // Create a unique id for the task. Here we use the current timestamp.
+  const id = 'task-' + Date.now();
+  todos[id] = { text: taskName, completed: false };
+  
+  saveTodos();
+  renderTodos();
+  
+  // Clear the input and hide the modal after adding the task
+  taskInput.value = '';
+  document.getElementById('task-modal').style.display = 'none';
+});
+
 
     // Dark Mode Toggler using the slider
     document.addEventListener('DOMContentLoaded', function() {
