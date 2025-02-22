@@ -11,6 +11,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-database-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
   <link rel="icon" href="icon.ico" type="image/x-icon" />
 </head>
 <body>
@@ -317,53 +319,60 @@
 
     // To-Do List Functions with Firebase Sync
     function renderTodos() {
-      const todoList = document.getElementById('todo-list');
-      todoList.innerHTML = '';
-      for (let id in todos) {
-        const todo = todos[id];
-        const li = document.createElement('li');
-        
-        
-        
-        // Delete Icon
-        const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('delete-task');
-        deleteBtn.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
-        deleteBtn.addEventListener('click', () => {
-          if (confirm('Are you sure you want to delete this task?')) {
-            delete todos[id];
-            saveTodos();
-            renderTodos();
-          }
-        });
-        li.appendChild(deleteBtn);
-        
-        // Checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = todo.completed;
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-    const audio = new Audio('complete.mp3');
-    audio.play();
-  }
-          todos[id].completed = checkbox.checked;
-          saveTodos();
-          renderTodos();
-        });
-        li.appendChild(checkbox);
-        
-        // Task Text
-        const textSpan = document.createElement('span');
-        textSpan.classList.add('task-text');
-        textSpan.textContent = todo.text;
-        if (todo.completed) {
-          textSpan.style.textDecoration = 'line-through';
-        }
-        li.appendChild(textSpan);
-        todoList.appendChild(li);
+  const todoList = document.getElementById('todo-list');
+  todoList.innerHTML = '';
+  for (let id in todos) {
+    const todo = todos[id];
+    const li = document.createElement('li');
+    li.setAttribute('data-id', id); // Add data attribute for drag-drop
+
+    // Grip icon for drag handle
+    const gripIcon = document.createElement('i');
+    gripIcon.className = 'fa-solid fa-grip-lines';
+    li.appendChild(gripIcon);
+
+    // Delete Icon
+    const deleteBtn = document.createElement('button');
+    deleteBtn.classList.add('delete-task');
+    deleteBtn.innerHTML = '<i class="fa-solid fa-ellipsis"></i>';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to delete this task?')) {
+        delete todos[id];
+        saveTodos();
+        renderTodos();
       }
+    });
+    li.appendChild(deleteBtn);
+
+    // Checkbox
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.checked = todo.completed;
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        const audio = new Audio('complete.mp3');
+        audio.play();
+      }
+      todos[id].completed = checkbox.checked;
+      saveTodos();
+      renderTodos();
+    });
+    li.appendChild(checkbox);
+
+    // Task Text
+    const textSpan = document.createElement('span');
+    textSpan.classList.add('task-text');
+    textSpan.textContent = todo.text;
+    if (todo.completed) {
+      textSpan.style.textDecoration = 'line-through';
     }
+    li.appendChild(textSpan);
+
+    todoList.appendChild(li);
+  }
+}
+
+
 
     function saveTodos() {
       if (firebase.auth().currentUser) {
@@ -561,6 +570,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('main-content').style.display = 'flex';
   
+
+  
   // Show task modal when the add task icon is clicked
   document.getElementById('add-task-icon').addEventListener('click', () => {
     document.getElementById('task-modal').style.display = 'flex';
@@ -704,6 +715,31 @@ function showEndPopup() {
   }, 5000);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  // ... your other DOMContentLoaded code
+
+  // Initialize Sortable on the todo list
+  Sortable.create(document.getElementById('todo-list'), {
+    animation: 150,
+    onEnd: function (evt) {
+      // Get the new order of task IDs
+      let newOrder = [];
+      document.querySelectorAll('#todo-list li').forEach(li => {
+        newOrder.push(li.getAttribute('data-id'));
+      });
+      
+      // Create a new ordered todos object based on the new order
+      let newTodos = {};
+      newOrder.forEach(id => {
+        newTodos[id] = todos[id];
+      });
+      todos = newTodos;
+      
+      // Save the updated order (if using Firebase/localStorage, etc.)
+      saveTodos();
+    }
+  });
+});
 
   </script>
 </body>
